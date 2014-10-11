@@ -1,0 +1,68 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="200dp"
+    tools:context=".MyActivity">
+
+    <ImageView
+        android:id="@+id/image"
+        android:layout_width="100dp"
+        android:layout_height="match_parent"
+        android:src="@drawable/url"
+        android:adjustViewBounds="true"
+        android:scaleType="centerCrop"
+        android:layout_alignParentRight="true" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_toLeftOf="@+id/image"
+        android:orientation="vertical"
+        android:weightSum="2"
+        android:layout_alignBottom="@+id/image">
+
+        <LinearLayout
+            android:layout_weight="1"
+            android:layout_width="match_parent"
+            android:layout_height="0dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="#ff0000"
+                android:weightSum="3">
+
+                <TextView
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/text_left" />
+
+                <TextView
+                    android:layout_weight="1"
+                    android:gravity="center_horizontal"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/text_center" />
+
+                <TextView
+                    android:layout_weight="1"
+                    android:gravity="right"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/text_right" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <TextView
+            android:background="#00FF00"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:text="@string/text_fill"/>
+
+    </LinearLayout>
+
+</RelativeLayout>

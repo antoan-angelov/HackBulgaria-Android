@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Fun wih flags!</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+
+    <color name="bright_pink">#FF007F</color>
+    <color name="black">#000000</color>
+    <color name="white">#ffffff</color>
+    <color name="red">#FF0000</color>
+    <color name="orange">#FF7F00</color>
+    <color name="yellow">#FFFF00</color>
+    <color name="chartreuse">#7FFF00</color>
+    <color name="green">#00FF00</color>
+    <color name="spring_green">#00FF7F</color>
+    <color name="cyan">#00FFFF</color>
+    <color name="azure">#007FFF</color>
+    <color name="blue">#0000FF</color>
+    <color name="violet">#7F00FF</color>
+    <color name="magenta">#FF00FF</color>
+
+    <array name="Bulgaria">
+        <item>@color/white</item>
+        <item>@color/green</item>
+        <item>@color/red</item>
+    </array>
+
+    <array name="Russia">
+        <item>@color/white</item>
+        <item>@color/blue</item>
+        <item>@color/red</item>
+    </array>
+
+    <array name="Netherlands">
+        <item>@color/red</item>
+        <item>@color/white</item>
+        <item>@color/blue</item>
+    </array>
+
+    <array name="Germany">
+        <item>@color/black</item>
+        <item>@color/red</item>
+        <item>@color/yellow</item>
+    </array>
+
+    <array name="Lithuania">
+        <item>@color/yellow</item>
+        <item>@color/green</item>
+        <item>@color/red</item>
+    </array>
+    
+    <array name="Romania">
+        <item>@color/blue</item>
+        <item>@color/yellow</item>
+        <item>@color/red</item>
+    </array>
+
+    <array name="Belgium">
+        <item>@color/black</item>
+        <item>@color/yellow</item>
+        <item>@color/red</item>
+    </array>
+
+    <array name="Italy">
+        <item>@color/green</item>
+        <item>@color/white</item>
+        <item>@color/red</item>
+    </array>
+
+</resources>
