@@ -16,6 +16,8 @@ import java.io.File;
 
 public class MyActivity extends Activity {
 
+    public static final int SEEK_DURATION = 3000;
+
     ImageButton prev;
     ImageButton next;
     ImageButton play;
@@ -51,8 +53,9 @@ public class MyActivity extends Activity {
         prev.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                video.pause();
                 long currentPos = video.getCurrentPosition();
-                long back = (currentPos > 3000 ? currentPos - 3000 : 0);
+                long back = (currentPos > SEEK_DURATION ? currentPos - SEEK_DURATION : 0);
                 video.seekTo((int) back);
             }
         });
@@ -60,8 +63,9 @@ public class MyActivity extends Activity {
         next.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                video.pause();
                 long currentPos = video.getCurrentPosition();
-                long forward = (video.getDuration() - currentPos > 3000 ? currentPos + 3000 : video.getDuration());
+                long forward = (video.getDuration() - currentPos > SEEK_DURATION ? currentPos + SEEK_DURATION : video.getDuration());
                 video.seekTo((int) forward);
             }
         });
