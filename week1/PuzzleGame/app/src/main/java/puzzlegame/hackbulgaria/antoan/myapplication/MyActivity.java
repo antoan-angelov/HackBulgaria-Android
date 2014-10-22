@@ -1,5 +1,8 @@
 package puzzlegame.hackbulgaria.antoan.myapplication;
 
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
+import android.animation.PropertyValuesHolder;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.content.ClipData;
@@ -15,6 +18,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
@@ -57,14 +61,10 @@ public class MyActivity extends Activity implements View.OnDragListener {
 
         int counter = 0;
         Random rnd = new Random();
-        LinearLayout rowContainer = (LinearLayout) findViewById(R.id.cont);
+        GridLayout row = (GridLayout) findViewById(R.id.cont);
 
         for (int i = 0; i < rows; i++) {
             // initialize a new row
-            LinearLayout row = new LinearLayout(this);
-            row.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-            row.setOrientation(LinearLayout.HORIZONTAL);
-            rowContainer.addView(row);
 
             for (int j = 0; j < columns; j++) {
                 Drawable d = mSlices.get(counter++);
@@ -81,6 +81,11 @@ public class MyActivity extends Activity implements View.OnDragListener {
                 iv.setScaleType(ImageView.ScaleType.FIT_XY);
                 iv.setOnDragListener(MyActivity.this);
 
+                final int finalJ = j;
+                final int finalI = i;
+
+                Coord coord = new Coord(finalJ, finalI, mHash.get(d));
+                iv.setTag(coord);
                 iv.setOnTouchListener(new View.OnTouchListener() {
                     @Override
                     public boolean onTouch(View view, MotionEvent motionEvent) {
@@ -100,13 +105,28 @@ public class MyActivity extends Activity implements View.OnDragListener {
         }
     }
 
+    private class Coord {
+        public int x, y;
+        public int index;
+
+        public Coord(int x, int y, int index) {
+            this.x = x;
+            this.y = y;
+            this.index = index;
+        }
+    }
+
     private boolean checkSolved() {
-        for(int i=0; i<mSlices.size(); i++) {
-            Drawable d = mSlices.get(i);
-            int expectedIndex = mHash.get(d);
-            if(expectedIndex != i) {
+
+        GridLayout row = (GridLayout) findViewById(R.id.cont);
+        int lastCoord = -1;
+        for(int i=0; i < row.getChildCount(); i++) {
+            ImageView iv = (ImageView) row.getChildAt(i);
+            Coord coord = (Coord) iv.getTag();
+
+            if(coord.index <= lastCoord)
                 return false;
-            }
+            lastCoord = coord.index;
         }
 
         return true;
@@ -121,25 +141,19 @@ public class MyActivity extends Activity implements View.OnDragListener {
                 ImageView below = (ImageView) view;
                 ImageView above = (ImageView) dragEvent.getLocalState();
 
-                // swap items in the randomized List
-                int indexUnder = mSlices.indexOf(below.getDrawable());
-                int indexAbove = mSlices.indexOf(above.getDrawable());
-                mSlices.set(indexUnder, above.getDrawable());
-                mSlices.set(indexAbove, below.getDrawable());
+                Coord coordAbove = (Coord) above.getTag();
+                Coord coordBelow = (Coord) below.getTag();
+                above.setTag(coordBelow);
+                below.setTag(coordAbove);
 
-                // swap border colors
-                int col1 = ((ColorDrawable) below.getBackground()).getColor();
-                int col2 = ((ColorDrawable) above.getBackground()).getColor();
-                below.setBackgroundColor(col2);
-                above.setBackgroundColor(col1);
+                ObjectAnimator animX1 = ObjectAnimator.ofFloat(below, "x", coordAbove.x * below.getMeasuredHeight());
+                ObjectAnimator animY1 = ObjectAnimator.ofFloat(below, "y", coordAbove.y * below.getMeasuredHeight());
+                ObjectAnimator animX2 = ObjectAnimator.ofFloat(above, "x", coordBelow.x * below.getMeasuredHeight());
+                ObjectAnimator animY2 = ObjectAnimator.ofFloat(above, "y", coordBelow.y * below.getMeasuredHeight());
+                AnimatorSet animSetXY = new AnimatorSet();
+                animSetXY.playTogether(animX1, animY1, animX2, animY2);
+                animSetXY.start();
 
-                // swap drawables
-                Drawable d1 = below.getDrawable();
-                Drawable d2 = above.getDrawable();
-                above.setImageDrawable(d1);
-                below.setImageDrawable(d2);
-
-                // check if puzzle is solved
                 if(checkSolved()) {
                     Toast.makeText(MyActivity.this, "You have solved the puzzle!", Toast.LENGTH_LONG).show();
                 }
