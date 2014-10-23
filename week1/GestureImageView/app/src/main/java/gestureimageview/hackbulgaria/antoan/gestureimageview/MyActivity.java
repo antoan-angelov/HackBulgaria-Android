@@ -148,17 +148,13 @@ public class MyActivity extends Activity implements View.OnTouchListener{
                         initialTranslateVector.set(point1).substract(translateVector);
                     }
                     else {
-                        initialTranslateVector.set(point1).add(point2).multiply(0.5).substract(translateVector);
+                        setInitValues();
                     }
                 }
                 else if (index == 1) {
                     point2 = new Point();
                     localToGlobal(point2, event.getX(1), event.getY(1), mImage);
-                    startVector.set(point2).substract(point1);
-                    double d = startVector.length();
-                    initialDistance = d / scale;
-                    initialRotation = rotation;
-                    initialTranslateVector.set(point1).add(point2).multiply(0.5).substract(translateVector);
+                    setInitValues();
                 }
                 break;
             case MotionEvent.ACTION_UP:
@@ -222,6 +218,14 @@ public class MyActivity extends Activity implements View.OnTouchListener{
         }
 
         return true;
+    }
+
+    private void setInitValues() {
+        startVector.set(point2).substract(point1);
+        double d = startVector.length();
+        initialDistance = d / scale;
+        initialRotation = rotation;
+        initialTranslateVector.set(point1).add(point2).multiply(0.5).substract(translateVector);
     }
 
     private void localToGlobal(Point p, float x, float y, ImageView mImage) {
