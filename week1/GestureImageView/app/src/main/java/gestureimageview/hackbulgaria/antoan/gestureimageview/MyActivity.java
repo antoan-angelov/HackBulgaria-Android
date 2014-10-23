@@ -2,11 +2,13 @@ package gestureimageview.hackbulgaria.antoan.gestureimageview;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.view.GestureDetector;
 import android.view.MotionEvent;
+import android.view.View;
 import android.widget.ImageView;
 
 
-public class MyActivity extends Activity {
+public class MyActivity extends Activity implements View.OnTouchListener{
 
     private class Point {
         public float x, y;
@@ -60,38 +62,87 @@ public class MyActivity extends Activity {
         }
     }
 
+    class DoubleTapGestureListener extends GestureDetector.SimpleOnGestureListener {
+
+        @Override
+        public boolean onDoubleTap(MotionEvent e) {
+            mImage.setTranslationX(0);
+            mImage.setTranslationY(0);
+            mImage.setRotation(0);
+            mImage.setScaleX(1);
+            mImage.setScaleY(1);
+            init();
+            return super.onDoubleTap(e);
+        }
+    }
+
     private ImageView mImage;
-    private float scale = 1f;
-    private Point point1 = null, point2 = null;
-    private float rotation = 0;
-    private double initialRotation = 0;
-    private double initialDistance = 0;
-    private Point startVector = new Point();
-    private Point endVector = new Point();
-    private Point zeroVector = new Point();
-    private Point initialTranslateVector = new Point();
-    private Point translateVector = new Point();
+    private float scale;
+    private Point point1, point2;
+    private float rotation;
+    private double initialRotation;
+    private double initialDistance;
+    private final Point startVector = new Point();
+    private final Point endVector = new Point();
+    private final Point zeroVector = new Point();
+    private final Point initialTranslateVector = new Point();
+    private final Point translateVector = new Point();
+    private int initialX, initialY;
+    private GestureDetector mDetector;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_my);
 
+        init();
+
         mImage = (ImageView) findViewById(R.id.image);
+        mImage.setOnTouchListener(this);
+        mDetector = new GestureDetector(this, new DoubleTapGestureListener());
+    }
+
+    private void init() {
+        scale = 1f;
+        point1 = null;
+        point2 = null;
+        rotation = 0;
+        initialRotation = 0;
+        initialDistance = 0;
+        startVector.set(0, 0);
+        endVector.set(0, 0);
+        zeroVector.set(0, 0);
+        initialTranslateVector.set(0, 0);
+        translateVector.set(0, 0);
     }
 
     @Override
-    public boolean onTouchEvent(MotionEvent event) {
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+
+        int[] img_coordinates = new int[2];
+        mImage.getLocationOnScreen(img_coordinates);
+        initialX = img_coordinates[0];
+        initialY = img_coordinates[1];
+    }
+
+    @Override
+    public boolean onTouch(View view, MotionEvent event) {
+
+        this.mDetector.onTouchEvent(event);
+
         int action = event.getActionMasked();
+        int index = event.getActionIndex();
 
         switch (action) {
             case MotionEvent.ACTION_DOWN:
             case MotionEvent.ACTION_POINTER_DOWN:
-                if(event.getActionIndex() == 0) {
+                if(index == 0) {
                     if(point1 != null && point2 == null)
                         point2 = point1;
 
-                    point1 = new Point(event.getX(), event.getY());
+                    point1 = new Point();
+                    localToGlobal(point1, event.getX(), event.getY(), mImage);
 
                     if(point2 == null) {
                         initialTranslateVector.set(point1).substract(translateVector);
@@ -100,8 +151,9 @@ public class MyActivity extends Activity {
                         initialTranslateVector.set(point1).add(point2).multiply(0.5).substract(translateVector);
                     }
                 }
-                else if (event.getActionIndex() == 1) {
-                    point2 = new Point(event.getX(1), event.getY(1));
+                else if (index == 1) {
+                    point2 = new Point();
+                    localToGlobal(point2, event.getX(1), event.getY(1), mImage);
                     startVector.set(point2).substract(point1);
                     double d = startVector.length();
                     initialDistance = d / scale;
@@ -111,7 +163,6 @@ public class MyActivity extends Activity {
                 break;
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_POINTER_UP:
-                int index = event.getActionIndex();
                 if(index == 0) {
                     if(point2 != null) {
                         initialTranslateVector.set(point2).substract(translateVector);
@@ -134,11 +185,11 @@ public class MyActivity extends Activity {
                 }
                 break;
             case MotionEvent.ACTION_MOVE:
-                point1.set(event.getX(0), event.getY(0));
+                localToGlobal(point1, event.getX(0), event.getY(0), mImage);
                 translateVector.set(point1).substract(initialTranslateVector);
 
                 if (point2 != null) {
-                    point2.set(event.getX(1), event.getY(1));
+                    localToGlobal(point2, event.getX(1), event.getY(1), mImage);
                     translateVector.set(point1).add(point2).multiply(0.5).substract(initialTranslateVector);
                     endVector.set(point2).substract(point1);
 
@@ -171,6 +222,18 @@ public class MyActivity extends Activity {
         }
 
         return true;
+    }
+
+    private void localToGlobal(Point p, float x, float y, ImageView mImage) {
+        double width = mImage.getMeasuredWidth(), height = mImage.getMeasuredHeight();
+        double rotation = mImage.getRotation() * Math.PI / 180;
+        double tx = mImage.getTranslationX(), ty = mImage.getTranslationY();
+        double globalCenterX = tx+initialX+width*0.5, globalCenterY = ty+initialY+height*0.5;
+        double rx = x - width * 0.5, ry = y - height * 0.5;
+        double cos = Math.cos(rotation), sin = Math.sin(rotation);
+        double newX = rx * cos - ry * sin, newY = rx * sin + ry * cos;
+
+        p.set((float) (globalCenterX + newX * mImage.getScaleX()), (float) (globalCenterY + newY * mImage.getScaleY()));
     }
 
     // Law of Cosines + 3x3 matrix determinant to determine the sign
