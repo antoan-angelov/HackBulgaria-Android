@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android" xmlns:example="http://schemas.android.com/apk/res/com.hackbulgaria.antoan.drawablebrush">
+
+    <item example:state_brush_selected="true" android:drawable="@drawable/green_gradient" />
+
+    <item android:drawable="@drawable/red_gradient" />
+</selector>
