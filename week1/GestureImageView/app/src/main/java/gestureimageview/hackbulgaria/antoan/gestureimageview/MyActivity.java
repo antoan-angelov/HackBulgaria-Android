@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class MyActivity extends Activity implements View.OnTouchListener, View.OnClickListener {
+public class MyActivity extends Activity implements View.OnTouchListener {
 
 
     private class Point {
@@ -100,21 +100,11 @@ public class MyActivity extends Activity implements View.OnTouchListener, View.O
     private final Point translateVector = new Point();
     private int initialX, initialY;
     private GestureDetector mDetector;
-    private Button mSaveFrameButton;
-    private Button mPlayButton;
-    private List<Animator> mStates;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_my);
-
-        mSaveFrameButton = (Button) findViewById(R.id.save_frame);
-        mPlayButton = (Button) findViewById(R.id.play);
-        mStates = new ArrayList<Animator>();
-
-        mSaveFrameButton.setOnClickListener(this);
-        mPlayButton.setOnClickListener(this);
 
         init();
 
@@ -135,29 +125,6 @@ public class MyActivity extends Activity implements View.OnTouchListener, View.O
         zeroVector.set(0, 0);
         initialTranslateVector.set(0, 0);
         translateVector.set(0, 0);
-    }
-
-
-    @Override
-    public void onClick(View view) {
-        switch(view.getId()) {
-            case R.id.save_frame:
-
-                PropertyValuesHolder pvhX = PropertyValuesHolder.ofFloat(View.TRANSLATION_X, mImage.getTranslationX());
-                PropertyValuesHolder pvhY = PropertyValuesHolder.ofFloat(View.TRANSLATION_Y, mImage.getTranslationY());
-                PropertyValuesHolder pvhRotation = PropertyValuesHolder.ofFloat(View.ROTATION, mImage.getRotation());
-                PropertyValuesHolder pvhScaleX = PropertyValuesHolder.ofFloat(View.SCALE_X, mImage.getScaleX());
-                PropertyValuesHolder pvhScaleY = PropertyValuesHolder.ofFloat(View.SCALE_Y, mImage.getScaleY());
-                ObjectAnimator animator = ObjectAnimator.ofPropertyValuesHolder(mImage, pvhX, pvhY, pvhRotation, pvhScaleX, pvhScaleY);
-                mStates.add(animator);
-
-                break;
-            case R.id.play:
-                AnimatorSet animatorSet = new AnimatorSet();
-                animatorSet.playSequentially(mStates);
-                animatorSet.start();
-                break;
-        }
     }
 
     @Override

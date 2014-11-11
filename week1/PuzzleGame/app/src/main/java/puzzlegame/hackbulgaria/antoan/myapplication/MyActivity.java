@@ -146,13 +146,10 @@ public class MyActivity extends Activity implements View.OnDragListener {
                 above.setTag(coordBelow);
                 below.setTag(coordAbove);
 
-                ObjectAnimator animX1 = ObjectAnimator.ofFloat(below, "x", coordAbove.x * below.getMeasuredHeight());
-                ObjectAnimator animY1 = ObjectAnimator.ofFloat(below, "y", coordAbove.y * below.getMeasuredHeight());
-                ObjectAnimator animX2 = ObjectAnimator.ofFloat(above, "x", coordBelow.x * below.getMeasuredHeight());
-                ObjectAnimator animY2 = ObjectAnimator.ofFloat(above, "y", coordBelow.y * below.getMeasuredHeight());
-                AnimatorSet animSetXY = new AnimatorSet();
-                animSetXY.playTogether(animX1, animY1, animX2, animY2);
-                animSetXY.start();
+                below.setX(coordAbove.x * below.getMeasuredHeight());
+                below.setY(coordAbove.y * below.getMeasuredHeight());
+                above.setX(coordBelow.x * below.getMeasuredHeight());
+                above.setY(coordBelow.y * below.getMeasuredHeight());
 
                 if(checkSolved()) {
                     Toast.makeText(MyActivity.this, "You have solved the puzzle!", Toast.LENGTH_LONG).show();
