@@ -16,19 +16,15 @@ public class GameClock {
     public void pause(boolean force) {
         mPaused = true;
         mForcePause = force;
-        Log.v("tag", "GameClock.pause() ");
     }
 
     public void resume() {
-
         if(mForcePause) {
             handler.post(new ClockRunnable());
         }
 
         mPaused = false;
         mForcePause = false;
-
-        Log.v("tag", "GameClock.resume() ");
     }
 
     public boolean isPaused() {

@@ -189,15 +189,15 @@ public class DrawingView extends View implements GameClock.GameClockListener {
         width = w;
         height = h;
 
+        boolean resize = (!mPaused && oldw * oldh > 0);
+
         mPaused = false;
         mForcePaused = false;
 
-        boolean resize = (oldw > 0 && oldh > 0 && oldw > oldh);
         initialize(resize);
     }
 
     private void initialize(boolean resize) {
-
         if(mBitmap != null) {
             mBitmap.recycle();
         }

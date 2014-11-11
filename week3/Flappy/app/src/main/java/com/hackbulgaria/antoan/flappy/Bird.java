@@ -27,8 +27,7 @@ public class Bird extends GameObject {
     public void onGameEvent(GameEvent gameEvent) {
         mDir.y = - JUMP_STRENGTH * (float) func(mJumpAngle);
 
-        //if (mJumpAngle <= 180 - JUMP_STEP)
-            mJumpAngle += JUMP_STEP;
+        mJumpAngle += JUMP_STEP;
 
         mPosition.y += mDir.y;
 
