@@ -1,0 +1,66 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="15dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center">
+
+        <EditText
+            android:hint="name"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/name" />
+
+        <EditText
+            android:hint="email"
+            android:layout_marginBottom="10dp"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/email" />
+
+        <RadioGroup
+            android:id="@+id/radio_group"
+            android:layout_marginBottom="10dp"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content">
+
+            <RadioButton
+                android:text="FMI"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <RadioButton
+                android:text="TU"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <RadioButton
+                android:text="TUES"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <RadioButton
+                android:text="UNSS"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+        </RadioGroup>
+
+        <Button
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:padding="15dp"
+            android:text="LOGIN"
+            android:id="@+id/button" />
+
+        <ProgressBar
+            android:id="@+id/progress"
+            android:visibility="gone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+    </LinearLayout>
+</ScrollView>
