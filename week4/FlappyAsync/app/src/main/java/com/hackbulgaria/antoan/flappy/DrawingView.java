@@ -261,7 +261,6 @@ public class DrawingView extends View implements GameClock.GameClockListener {
 
     @Override
     public void onGameEvent(GameEvent gameEvent) {
-
         float lastX = mLastObstacle.getPosition().x;
         if(lastX < width) {
             Obstacle obstacle = Obstacle.getInstance(this, mPipeTexture, lastX + DISTANCE_BETWEEN_PIPES, height);

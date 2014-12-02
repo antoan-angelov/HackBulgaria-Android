@@ -35,12 +35,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
             startActivity(intent);
     }
     private boolean matches(String text, String pattern) {
-        boolean result;
-        try {
-            result = Pattern.compile(pattern).matcher(text).matches();
-        } catch (RuntimeException e) {
-            result = false;
-        }
+        boolean result = Pattern.compile(pattern).matcher(text).matches();
         if (!result)
             new AlertDialog.Builder(this).setTitle("Invalid input").setMessage("Please enter valid input.").setPositiveButton("OK", null).show();
         return result;

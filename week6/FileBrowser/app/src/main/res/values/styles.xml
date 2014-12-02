@@ -1,0 +1,16 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="android:Theme.Holo">
+        <!-- Customize your theme here. -->
+    </style>
+
+    <style name="FileItemStyle">
+        <item name="android:textColor">#ffffffff</item>
+    </style>
+
+    <style name="FolderItemStyle">
+        <item name="android:textColor">#ffffff00</item>
+    </style>
+
+</resources>

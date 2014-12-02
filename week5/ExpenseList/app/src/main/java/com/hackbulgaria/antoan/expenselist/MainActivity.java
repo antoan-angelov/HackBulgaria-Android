@@ -39,6 +39,8 @@ public class MainActivity extends Activity {
                 item.label = label.getText().toString();
                 item.price = price.getText().toString();
                 mAdapter.add(item);
+                label.setText("");
+                price.setText("");
             }
         });
 
@@ -96,6 +98,7 @@ public class MainActivity extends Activity {
             final ExpenseItem item = getItem(position);
             ViewHolder holder;
 
+
             if (convertView == null) {
                 convertView = LayoutInflater.from(getContext()).inflate(R.layout.item_list, parent, false);
                 holder = new ViewHolder();
@@ -107,6 +110,7 @@ public class MainActivity extends Activity {
             else {
                 holder = (ViewHolder) convertView.getTag();
             }
+
 
             holder.label.setText(item.label);
             holder.price.setText(item.price);

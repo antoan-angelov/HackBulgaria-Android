@@ -30,29 +30,40 @@ public class MainActivity extends Activity {
             Log.e("err", "Device has no mCamera!");
             return;
         }
-
-        mCamera = Camera.open();
-        mParameters = mCamera.getParameters();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
 
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                if (!mLighOn) {
-                    Log.v("tag", "STARTING FLASH");
-                    mParameters.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
-                    mCamera.setParameters(mParameters);
-                    mCamera.startPreview();
-                    mLighOn = true;
-                }
+        mCamera = Camera.open();
+        mCamera.startPreview();
+        mCamera.autoFocus(new Camera.AutoFocusCallback() {
+            public void onAutoFocus(boolean success, Camera camera) {
             }
-        }, 5000);
+        });
+
+        if (!mLighOn) {
+            Log.v("tag", "STARTING FLASH");
+
+            mParameters = mCamera.getParameters();
+            mParameters.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
+            mCamera.setParameters(mParameters);
+
+            timer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    mParameters = mCamera.getParameters();
+                    mParameters.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
+                    mCamera.setParameters(mParameters);
+                }
+            }, 1000);
 
 
+            mLighOn = true;
+
+
+        }
     }
 
     @Override
@@ -65,11 +76,6 @@ public class MainActivity extends Activity {
             mCamera.stopPreview();
             mLighOn = false;
         }
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
 
         if (mCamera != null) {
             mCamera.release();
