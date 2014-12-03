@@ -10,7 +10,6 @@ import android.os.Looper;
 import android.util.DisplayMetrics;
 import android.view.ViewGroup;
 import android.view.ViewGroupOverlay;
-import android.widget.ImageView;
 
 
 public class MainActivity extends Activity {
