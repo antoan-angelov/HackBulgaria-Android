@@ -1,7 +1,8 @@
-package com.hackbulgaria.antoan.flappy;
+package com.hackbulgaria.antoan.flappy.game;
 
 import android.os.Handler;
-import android.util.Log;
+
+import com.hackbulgaria.antoan.flappy.constants.Constants;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -66,7 +67,7 @@ public class GameClock {
         public void run() {
             if(!mForcePause) {
                 onTimerTick();
-                handler.postDelayed(this, Settings.FRAMERATE_CONSTANT);
+                handler.postDelayed(this, Constants.FRAMERATE_CONSTANT);
             }
         }
 

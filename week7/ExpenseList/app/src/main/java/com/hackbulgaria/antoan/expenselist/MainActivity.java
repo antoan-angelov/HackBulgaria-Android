@@ -1,17 +1,10 @@
 package com.hackbulgaria.antoan.expenselist;
 
 import android.app.Activity;
-import android.content.Context;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.ListView;
-import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -56,10 +49,12 @@ public class MainActivity extends Activity implements OnEntriesLoaded {
             }
         }
 
+        mDbHelper = new ExpenseListHelper(this);
+
         mAdapter = new ExpenseListAdapter(this, mDbHelper, items);
         listView.setAdapter(mAdapter);
 
-        mDbHelper = new ExpenseListHelper(this);
+
         new RetrieveAllEntriesTask(mDbHelper, this).execute();
     }
 

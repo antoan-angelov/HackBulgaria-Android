@@ -1,4 +1,4 @@
-package com.hackbulgaria.antoan.flappy;
+package com.hackbulgaria.antoan.flappy.game;
 
 /**
  * Created by Antoan on 09-Nov-14.

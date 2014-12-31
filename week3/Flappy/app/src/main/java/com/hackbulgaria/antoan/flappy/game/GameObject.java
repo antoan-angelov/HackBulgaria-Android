@@ -1,7 +1,6 @@
-package com.hackbulgaria.antoan.flappy;
+package com.hackbulgaria.antoan.flappy.game;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -68,13 +67,6 @@ public abstract class GameObject implements GameClock.GameClockListener {
         mPosition.set(x, y);
     }
 
-    public void setWidth(int width) {
-        this.mWidth = width;
-    }
-
-    public void setHeight(int height) {
-        this.mHeight = height;
-    }
 
     public boolean collidesWith(GameObject object) {
         return (object.pointInObject(mPosition.x + mCollisionRect.right, mPosition.y + mCollisionRect.top)
@@ -90,6 +82,16 @@ public abstract class GameObject implements GameClock.GameClockListener {
                 && y <= mPosition.y + mHeight);
     }
 
+    public void setWidth(int width) {
+        this.mWidth = width;
+        mCollisionRect.set(0, 0, mWidth, mHeight);
+    }
+
+    public void setHeight(int height) {
+        this.mHeight = height;
+        mCollisionRect.set(0, 0, mWidth, mHeight);
+    }
+
     public int getWidth() {
         return mWidth;
     }
@@ -100,5 +102,6 @@ public abstract class GameObject implements GameClock.GameClockListener {
 
     public void dispose() {
         mBitmap.recycle();
+        mBitmap = null;
     }
 }

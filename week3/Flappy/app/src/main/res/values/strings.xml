@@ -3,5 +3,8 @@
 
     <string name="app_name">Flappy Yume</string>
     <string name="action_settings">Settings</string>
+    <string name="enter_name_here">Enter name here</string>
+    <string name="cancel">Cancel</string>
+    <string name="ok">OK</string>
 
 </resources>

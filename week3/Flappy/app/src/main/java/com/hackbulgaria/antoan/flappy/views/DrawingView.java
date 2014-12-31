@@ -1,4 +1,4 @@
-package com.hackbulgaria.antoan.flappy;
+package com.hackbulgaria.antoan.flappy.views;
 
 import android.content.Context;
 import android.content.res.AssetManager;
@@ -7,21 +7,42 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Rect;
 import android.graphics.Typeface;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentTransaction;
 import android.util.AttributeSet;
-import android.util.Log;
+import android.util.DisplayMetrics;
+import android.view.Display;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.WindowManager;
+
+import com.hackbulgaria.antoan.flappy.game.Background;
+import com.hackbulgaria.antoan.flappy.game.Bird;
+import com.hackbulgaria.antoan.flappy.dialogs.EnterNameDialogFragment;
+import com.hackbulgaria.antoan.flappy.game.GameClock;
+import com.hackbulgaria.antoan.flappy.game.GameEvent;
+import com.hackbulgaria.antoan.flappy.game.GameObject;
+import com.hackbulgaria.antoan.flappy.game.HitArea;
+import com.hackbulgaria.antoan.flappy.game.Obstacle;
+import com.hackbulgaria.antoan.flappy.geometry.Rect;
+import com.hackbulgaria.antoan.flappy.listeners.OnClickListener;
+import com.hackbulgaria.antoan.flappy.R;
+import com.hackbulgaria.antoan.flappy.dialogs.ViewHighscoresDialogFragment;
+import com.hackbulgaria.antoan.flappy.managers.AudioManager;
+import com.hackbulgaria.antoan.flappy.managers.PatternManager;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class DrawingView extends View implements GameClock.GameClockListener {
+public class DrawingView extends View implements GameClock.GameClockListener, OnClickListener {
 
-    public static final int DISTANCE_BETWEEN_PIPES = 400;
-    public static final int FIRST_PIPE_POS = 400;
-    public static final int BIRD_X = 100;
+    public static float SCREEN_DENSITY;
+    private static final int DISTANCE_BETWEEN_PIPES = 220;
+    private static final int FIRST_PIPE_POS = 400;
+    private static final int BIRD_X = 100;
+    private static final int EDGE_OFFSET = 15;
+    private static final int ID_SCORES_BUTTON = 1;
 
     private Bitmap mBitmap;
     private Canvas mCanvas;
@@ -41,9 +62,24 @@ public class DrawingView extends View implements GameClock.GameClockListener {
     private Obstacle mNextObstacle;
     private Paint mScorePaint;
     private Paint mGameOverFillPaint;
-    private final Rect mTempRect = new Rect();
+    private final android.graphics.Rect mTempRect = new android.graphics.Rect();
     private int mScore;
     private Paint mGameOverStrokePaint;
+    private PatternManager mPatternManager;
+    private boolean mTempPause;
+    private boolean mHasGameStarted;
+    private List<HitArea> mClickListeners;
+
+    private int mDistanceBetweenPipes;
+    private int mFirstPipePos;
+    private int mBirdX;
+    private int mEdgeOffset;
+    private HitArea mScoresHitArea;
+
+    private int mGameplayTextSize;
+    private int mGameplayVerticalSpacing;
+    private int mGameplayStrokeWidth;
+    private int mGameplayTextClickPadding;
 
     public DrawingView(Context context) {
         super(context);
@@ -58,36 +94,58 @@ public class DrawingView extends View implements GameClock.GameClockListener {
     }
 
     private void init() {
+        DisplayMetrics metrics = new DisplayMetrics();
+        WindowManager windowManager = (WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE);
+        Display display = windowManager.getDefaultDisplay();
+        display.getMetrics(metrics);
+        SCREEN_DENSITY = metrics.density;
+
+        mDistanceBetweenPipes = (int) (DISTANCE_BETWEEN_PIPES * SCREEN_DENSITY);
+        mFirstPipePos = (int) (FIRST_PIPE_POS * SCREEN_DENSITY);
+        mBirdX = (int) (BIRD_X * SCREEN_DENSITY);
+        mEdgeOffset = (int) (EDGE_OFFSET * SCREEN_DENSITY);
+
         mPaint = new Paint();
 
-        mObstacles = new ArrayList<Obstacle>();
+        mObstacles = new ArrayList<>();
+        mClickListeners = new ArrayList<>();
+
         initVariables();
 
         AssetManager assetManager = getContext().getAssets();
         Typeface plain = Typeface.createFromAsset(assetManager, "font.ttf");
 
+        mGameplayTextSize = getResources().getDimensionPixelSize(R.dimen.gameplay_text_size);
+        mGameplayVerticalSpacing = getResources().getDimensionPixelSize(R.dimen.gameplay_text_vertical_spacing);
+        mGameplayStrokeWidth = getResources().getDimensionPixelSize(R.dimen.gameplay_text_stroke_width);
+        mGameplayTextClickPadding = getResources().getDimensionPixelSize(R.dimen.gameplay_text_click_padding);
+
         mScorePaint = new Paint();
         mScorePaint.setTypeface(plain);
         mScorePaint.setColor(Color.WHITE);
         mScorePaint.setAlpha(90);
-        mScorePaint.setTextSize(100);
+        mScorePaint.setTextSize(mGameplayTextSize);
 
         mGameOverFillPaint = new Paint();
         mGameOverFillPaint.setTypeface(plain);
         mGameOverFillPaint.setColor(Color.WHITE);
-        mGameOverFillPaint.setTextSize(72);
+        mGameOverFillPaint.setTextSize(mGameplayTextSize);
 
         mGameOverStrokePaint = new Paint(mGameOverFillPaint);
         mGameOverStrokePaint.setColor(Color.BLACK);
         mGameOverStrokePaint.setStyle(Paint.Style.STROKE);
-        mGameOverStrokePaint.setStrokeWidth(12);
+        mGameOverStrokePaint.setStrokeWidth(mGameplayStrokeWidth);
     }
 
     private void initVariables() {
         mGameOver = false;
         mCanTap = true;
+        mTempPause = false;
         mNextObstacle = null;
+        mScoresHitArea = null;
         mScore = 0;
+        mHasGameStarted = false;
+        mPatternManager = new PatternManager(new PatternManager.Pattern[] { PatternManager.Pattern.PATTERN_REST, PatternManager.Pattern.PATTERN_MEDIUM });
     }
 
     private void addObstacle(final Obstacle obstacle) {
@@ -122,7 +180,11 @@ public class DrawingView extends View implements GameClock.GameClockListener {
 
         if(mGameOver) {
             drawCenteredText("GAME OVER", mGameOverFillPaint, 0, false);
-            drawCenteredText("TAP TO RESTART", mGameOverFillPaint, 80, false);
+            drawCenteredText("TAP TO RESTART", mGameOverFillPaint, mGameplayTextSize + mGameplayVerticalSpacing, false);
+        }
+        else if(!mHasGameStarted) {
+            drawCenteredText("TAP TO START", mGameOverFillPaint, 0, false);
+            drawCenteredText("VIEW HIGHSCORES", mGameOverFillPaint, mGameplayTextSize + mGameplayVerticalSpacing, false, ID_SCORES_BUTTON);
         }
 
         canvas.drawBitmap(mBitmap, 0, 0, null);
@@ -133,14 +195,32 @@ public class DrawingView extends View implements GameClock.GameClockListener {
     }
 
     private void drawCenteredText(String text, Paint paint, int yOffset, boolean isScore) {
+        drawCenteredText(text, paint, yOffset, isScore, -1);
+    }
+
+    private void drawCenteredText(String text, Paint paint, int yOffset, boolean isScore, int id) {
         paint.getTextBounds(text, 0, text.length(), mTempRect);
-        int x = (width - mTempRect.width()) / 2;
-        int y = (height + mTempRect.height()) / 2 + yOffset;
+        int boundWidth = mTempRect.width();
+        int boundHeight = mTempRect.height();
+        int x = (width - boundWidth) / 2;
+        int y = (height + boundHeight) / 2 + yOffset;
+
+        if(id != -1 && mScoresHitArea == null) {
+            Rect rect = new Rect(x - mGameplayTextClickPadding, y - boundHeight - mGameplayTextClickPadding,
+                    boundWidth + 2 * mGameplayTextClickPadding, boundHeight + 2 * mGameplayTextClickPadding);
+            mScoresHitArea = new HitArea(id, rect, this) {
+                @Override
+                public boolean isEnabled() {
+                    return !mHasGameStarted;
+                }
+            };
+            mClickListeners.add(mScoresHitArea);
+        }
 
         if(isScore) {
             final int saveCount = mCanvas.save();
             try {
-                mCanvas.scale(4, 4, width * 0.5f, height * 0.5f);
+                mCanvas.scale(5, 5, width * 0.5f, height * 0.5f);
                 mCanvas.drawText(text, x, y, mScorePaint);
             } finally {
                 mCanvas.restoreToCount(saveCount);
@@ -154,12 +234,36 @@ public class DrawingView extends View implements GameClock.GameClockListener {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
+
+                int xpos = (int) event.getX();
+                int ypos = (int) event.getY();
+
+                if(ypos > height - mEdgeOffset
+                    || ypos < mEdgeOffset
+                    || xpos < mEdgeOffset
+                    || xpos > width - mEdgeOffset) {
+
+                    return true;
+                }
+
+                for(HitArea hitArea : mClickListeners) {
+                    if(hitArea.isEnabled() && hitArea.test(xpos, ypos)) {
+                        return true;
+                    }
+                }
+
+                if(!mHasGameStarted) {
+                    mHasGameStarted = true;
+                }
+
                 if(mCanTap) {
                     if (mGameClock.isPaused()) {
                         mGameClock.resume();
                     }
+
                     bird.flap();
                 }
                 else if(mGameOver) {
@@ -167,12 +271,13 @@ public class DrawingView extends View implements GameClock.GameClockListener {
                         Obstacle.release(obstacle);
                     }
                     mObstacles.clear();
+                    mClickListeners.clear();
                     initVariables();
                     mPaused = false;
                     mForcePaused = false;
                     setInitPositions();
-                    mGameClock.resume();
                 }
+
                 break;
         }
 
@@ -183,8 +288,10 @@ public class DrawingView extends View implements GameClock.GameClockListener {
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
 
-        if(w < h || w <= 0 || h <= 0)
+        if(mTempPause || w < h || w <= 0 || h <= 0) {
+            mTempPause = false;
             return;
+        }
 
         width = w;
         height = h;
@@ -211,6 +318,10 @@ public class DrawingView extends View implements GameClock.GameClockListener {
                     obstacle.setPosition(obstacle.getPosition().x, height - obstacle.getHeight());
                 }
             }
+
+            background.setWidth(width);
+            background.setHeight(height);
+
             return;
         }
 
@@ -227,7 +338,7 @@ public class DrawingView extends View implements GameClock.GameClockListener {
         }
 
         if(bird == null) {
-            bird = new Bird(getContext(), BIRD_X, height * 0.5f);
+            bird = new Bird(getContext(), mBirdX, height * 0.5f);
         }
 
         if(mPipeTexture == null) {
@@ -244,18 +355,18 @@ public class DrawingView extends View implements GameClock.GameClockListener {
         mGameClock.subscribe(background);
         mGameClock.subscribe(bird);
 
-        int x = FIRST_PIPE_POS;
+        int x = mFirstPipePos;
         while(x < width) {
-            Obstacle obstacle = Obstacle.getInstance(this, mPipeTexture, x, height);
+            Obstacle obstacle = Obstacle.getInstance(this, mPipeTexture, x, height, mPatternManager.getNext());
             addObstacle(obstacle);
             if(mNextObstacle == null) {
                 mNextObstacle = obstacle;
             }
 
-            x += DISTANCE_BETWEEN_PIPES;
+            x += mDistanceBetweenPipes;
         }
 
-        bird.setPosition(BIRD_X, height * 0.5f);
+        bird.setPosition(mBirdX, height * 0.5f);
     }
 
     @Override
@@ -263,7 +374,7 @@ public class DrawingView extends View implements GameClock.GameClockListener {
 
         float lastX = mLastObstacle.getPosition().x;
         if(lastX < width) {
-            Obstacle obstacle = Obstacle.getInstance(this, mPipeTexture, lastX + DISTANCE_BETWEEN_PIPES, height);
+            Obstacle obstacle = Obstacle.getInstance(this, mPipeTexture, lastX + mDistanceBetweenPipes, height, mPatternManager.getNext());
             addObstacle(obstacle);
         }
 
@@ -301,6 +412,9 @@ public class DrawingView extends View implements GameClock.GameClockListener {
             mGameOver = true;
             bird.die();
             pause(false);
+            EnterNameDialogFragment newFragment = EnterNameDialogFragment.newInstance(mScore);
+            FragmentTransaction ft = ((FragmentActivity)getContext()).getSupportFragmentManager().beginTransaction();
+            newFragment.show(ft, "dialog");
         }
 
         invalidate();
@@ -317,6 +431,8 @@ public class DrawingView extends View implements GameClock.GameClockListener {
     }
 
     public void pause(boolean force) {
+
+        mTempPause = true;
         mPaused = true;
         mForcePaused = force;
         if(mGameClock != null) {
@@ -378,4 +494,17 @@ public class DrawingView extends View implements GameClock.GameClockListener {
     public void setAudioManager(AudioManager audioManager) {
         this.mAudioManager = audioManager;
     }
+
+    @Override
+    public void OnClick(int id) {
+        switch(id) {
+            case ID_SCORES_BUTTON:
+                ViewHighscoresDialogFragment newFragment = ViewHighscoresDialogFragment.newInstance();
+                FragmentTransaction ft = ((FragmentActivity)getContext()).getSupportFragmentManager().beginTransaction();
+                newFragment.show(ft, "dialog");
+
+                break;
+        }
+    }
+
 }

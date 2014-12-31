@@ -1,8 +1,14 @@
-package com.hackbulgaria.antoan.flappy;
+package com.hackbulgaria.antoan.flappy.game;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Point;
 import android.util.Log;
+import android.view.Display;
+import android.view.WindowManager;
+
+import com.hackbulgaria.antoan.flappy.views.DrawingView;
 
 import java.util.Stack;
 
@@ -12,14 +18,23 @@ import java.util.Stack;
 public class Obstacle extends GameObject {
 
     private final static Stack<Obstacle> sPool = new Stack<Obstacle>();
-    public static final int PIPE_MIN_HEIGHT = 100;
-    public static final float PIPE_HEIGHT_COEFF = 0.3f;
     public static final int PIPE_SPEED = 14;
 
-    public static Obstacle getInstance(DrawingView context, Bitmap texture, float x, float canvasHeight) {
-        double random = Math.random();
-        int pipeHeight = (int) (texture.getHeight() * PIPE_HEIGHT_COEFF * random + PIPE_MIN_HEIGHT);
-        float y = (random > 0.5 ? 0 : canvasHeight - pipeHeight);
+    public static Obstacle getInstance(DrawingView context, Bitmap texture, float x, float canvasHeight, float random) {
+
+        float nexus_height = 360f; //physical height, in dp
+
+        Display display = ((WindowManager) context.getContext().getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
+        Point size = new Point();
+        display.getSize(size);
+        float this_height = size.y / DrawingView.SCREEN_DENSITY;
+        float ratio = 1;
+        if(this_height > nexus_height) {
+            ratio = 1 + 0.3f * (1 - nexus_height / this_height);
+        }
+
+        int pipeHeight = (int) (ratio * size.y * (random >= 0 ? random : -random));
+        float y = (random > 0 ? 0 : canvasHeight - pipeHeight);
 
         Obstacle obstacle;
 

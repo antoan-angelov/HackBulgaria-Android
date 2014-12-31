@@ -1,7 +1,10 @@
-package com.hackbulgaria.antoan.flappy;
+package com.hackbulgaria.antoan.flappy.game;
 
 import android.content.Context;
 import android.graphics.Canvas;
+
+import com.hackbulgaria.antoan.flappy.R;
+import com.hackbulgaria.antoan.flappy.geometry.Vector;
 
 /**
  * Created by Antoan on 09-Nov-14.
@@ -16,7 +19,7 @@ public class Bird extends GameObject {
     private float mJumpAngle;
     private float mRotation;
 
-    protected Bird(Context context, float initialX, float initialY) {
+    public Bird(Context context, float initialX, float initialY) {
         super(context, R.drawable.bird, initialX, initialY);
 
         mCollisionRect.set(50, 0, mWidth, mHeight);

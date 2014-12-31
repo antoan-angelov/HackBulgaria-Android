@@ -9,6 +9,7 @@ import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
+import static com.hackbulgaria.antoan.expenselist.ExpenseListContract.ExpenseTableEntry.*;
 
 /**
  * Created by Antoan on 03-Dec-14.
@@ -66,8 +67,9 @@ public class ExpenseListHelper extends SQLiteOpenHelper {
                 ExpenseListContract.ExpenseTableEntry.COLUMN_PRICE,
         };
 
-        Cursor cursor = db.rawQuery("select * from " + ExpenseListContract.ExpenseTableEntry.TABLE_NAME, null);
-        Log.v("tag", "CURSOR COUNT=" + cursor.getCount());
+        String query = new FluentApiBuilder().select("*").from(ExpenseListContract.ExpenseTableEntry.TABLE_NAME).build();
+        Cursor cursor = db.rawQuery(query, null);
+
         if (cursor.moveToFirst()) {
             do {
                 int id = cursor.getInt(0);
@@ -81,9 +83,8 @@ public class ExpenseListHelper extends SQLiteOpenHelper {
     }
 
     public void deleteEntry(int id) {
-        String selection = ExpenseListContract.ExpenseTableEntry._ID + " = ?";
-        String[] selectionArgs = {String.valueOf(id)};
-        db.delete(ExpenseListContract.ExpenseTableEntry.TABLE_NAME, selection, selectionArgs);
+        String query = new FluentApiBuilder().delete().from(TABLE_NAME).where(_ID).eq(String.valueOf(id)).build();
+        db.rawQuery(query, null);
     }
 
 

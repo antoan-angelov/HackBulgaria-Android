@@ -1,7 +1,9 @@
-package com.hackbulgaria.antoan.flappy;
+package com.hackbulgaria.antoan.flappy.managers;
 
 import android.content.Context;
 import android.media.MediaPlayer;
+
+import com.hackbulgaria.antoan.flappy.R;
 
 /**
  * Created by Antoan on 11-Nov-14.

@@ -1,11 +1,12 @@
-package com.hackbulgaria.antoan.flappy;
+package com.hackbulgaria.antoan.flappy.game;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.graphics.BitmapShader;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Shader;
+
+import com.hackbulgaria.antoan.flappy.R;
 
 /**
  * Created by Antoan on 09-Nov-14.
@@ -15,7 +16,7 @@ public class Background extends GameObject {
     private BitmapShader mShader;
     private Paint mPaint;
 
-    protected Background(Context context, int width, int height) {
+    public Background(Context context, int width, int height) {
         super(context, R.drawable.clouds, 0, 0, width, height);
 
         mShader = new BitmapShader(mBitmap, Shader.TileMode.REPEAT, Shader.TileMode.REPEAT);
@@ -43,4 +44,5 @@ public class Background extends GameObject {
     public boolean canPause() {
         return false;
     }
+
 }
